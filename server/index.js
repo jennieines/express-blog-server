@@ -1,11 +1,16 @@
 // require express
 const express = require('express');
+//require cors
+const cors = require('cors');
 
 //create express app
 const app = express();
 
 //middleware: intermediate functions that we want 
 //to run in between the request and the response.
+
+//enable CORS requests
+app.use(cors());
 
 //middleware: logging the request
 app.use((req, res, next) => {
@@ -45,8 +50,8 @@ app.get('/posts', (req, res) => {
 app.post('/posts', (req, res) => {
     //create new blog post object
     //id is current time when request is recieved, ...req.body is the request
-    //body that would contain the title and content of the blog post, comments is an empty array  
-    const newPost = {id: Date.now(), ...req.body, comments: []};
+    //contain the content of the blog post
+    const newPost = { ...req.body };
     //add new blog post to the blogPosts array
     blogPosts.push(newPost);
     //send back the new blog post as a JSON object
