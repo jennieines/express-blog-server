@@ -7,6 +7,7 @@ function App() {
   const [posts, setPosts] = useState([]);
   //create state variable to store data for a new post
   const [newPost, setNewPost] = useState({id:0, title: "", content: "", comments: []});
+  const [editingPost, setEditingPost] = useState(null);
 
   //use useEffect to use axios to fetch all blog posts on page load
   useEffect (() => {
@@ -15,7 +16,7 @@ function App() {
     const response = await axios.get(`${BASE_URL}/posts`);
     setPosts(response.data);
    } catch (error) {
-    console.error('Error fetching posts: ', error);
+    console.error('Error fetching posts:', error);
   }
 };
 
@@ -25,11 +26,11 @@ fetchPosts();
 const handleSubmit = async (e) => {
   e.preventDefault();
   //update the id of the new post to be the current datetime
-  setNewPost({...newPost, id: Date.now()})
+  const postToAdd = { ...newPost, id: Date.now()};
 try {
   //send a post request with newPost in the request body
-  await axios.post(`${BASE_URL}/posts`, newPost)
-  setPosts([...posts, newPost]);
+  await axios.post(`${BASE_URL}/posts`, postToAdd)
+  setPosts([...posts, postToAdd]);
   //reset the new post state so that it is ready for another new post
   setNewPost({id: 0, title: "", content: "", comments: []});
 } catch (error) {
@@ -45,7 +46,23 @@ const handleDelete = async (postId) => {
   } catch (error) {
     console.error("Error deleting post:", error);
   }
-}
+};
+
+const handleUpdatePost = async (e) => {
+  e.preventDefault();
+
+  try {
+    await axios.put(`${BASE_URL}/posts/${editingPost.id}`, editingPost);
+
+    // Update the posts state with the updated post
+    setPosts(posts.map((post) => (post.id === editingPost.id ? editingPost : post)));
+
+    // Reset editingPost to null
+    setEditingPost(null);
+  } catch (error) {
+    console.error("Error updating post:", error);
+  }
+};
 
   return (
     <div>
@@ -59,9 +76,28 @@ const handleDelete = async (postId) => {
             //corresponding id, so when the button is clicked, handleDelete is ran
             //with that id */}
             <button onClick={() => handleDelete(post.id)}>Delete Post</button>
+            <button onClick={() => setEditingPost(post)}>Edit Post</button>
           </li>
         ))}
       </ul>
+
+      {editingPost && (
+        <form onSubmit={handleUpdatePost}>
+          <input
+            type='text'
+            placeholder='Title'
+            value={editingPost.title}
+            onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+          />
+          <textarea
+            placeholder='Content'
+            value={editingPost.content}
+            onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+          />
+          <button type='submit'>Update Post</button>
+        </form>
+      )}
+
       {/* {posts ? JSON.stringify(posts, null, 2) : "Loading..."} */}
       <form onSubmit={handleSubmit}>
         <input

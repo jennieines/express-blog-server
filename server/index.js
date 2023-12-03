@@ -18,7 +18,7 @@ app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     //next() is a function that we call to move on to the next middleware
     next();
-})
+});
 
 //middleware: parsing JSON request body
 //next() is built in because this is a built in express middleware
@@ -29,7 +29,7 @@ let blogPosts = [
 { id: 1, title: "First Post", content: "This is my first post", comments: []},
 { id: 2, title: "Second Post", content: "This is my second post", comments: []},
 { id: 3, title: "Third Post", content: "This is my third post", comments: []}
-]
+];
 
 //CRUD functionality: Create, Read, Update, Delete
 
@@ -37,14 +37,14 @@ let blogPosts = [
 //"Welcome to My Blog"
 app.get('/', (req, res) => {
     res.send("Welcome to My Blog");
-})
+});
 
 
 //Read: GET request route handler to return all blog posts
 app.get('/posts', (req, res) => {
     //attaches the blogPosts array to the response object as a JSON object
     res.json(blogPosts)
-}) 
+});
 
 //Create: POST request route handler to create a new blog post
 app.post('/posts', (req, res) => {
@@ -57,7 +57,7 @@ app.post('/posts', (req, res) => {
     //send back the new blog post as a JSON object
     //along with a status code indicating that the request was successful
      res.status(201).json(newPost);
-})
+});
 
 //Update: PUT request route handler to update a blog post
 //use : in route to indicate a variable (route parameter) eg: /posts/27
@@ -74,10 +74,12 @@ if (index !== -1) {
     //but with whatever data was sent in the request overwriting old data
     blogPosts[index] = {...blogPosts[index], ...req.body};
     //send back the new, updated blog post
+    console.log(`Updated post: ${JSON.stringify(blogPosts[index])}`);
     res.json(blogPosts[index]);
 } else {
     //if blog post with matching id not found
     //send 404 status
+    console.log(`Post with id ${id} not found`);
     res.status(404).send("Post not found");
 }
 });
@@ -89,10 +91,10 @@ app.delete('/posts/:id', (req, res) => {
     // it stays. if it does, it gets removed (filtered out) of the array
     blogPosts = blogPosts.filter(post => post.id !== Number(id));
     res.status(204).send();
-})
+});
 
 //start the server
 const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port localhost:${PORT}.`);
-})
+});
